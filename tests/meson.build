@@ -36,6 +36,7 @@ foreach file : test_files_to_copy
     fs.copyfile(file)
 endforeach
 
+if use_devmapper
 api_test = executable('api-test',
     [
         'api-test.c',
@@ -57,6 +58,7 @@ api_test_2 = executable('api-test-2',
         '-DNO_CRYPTSETUP_PATH',
     ],
     include_directories: includes_lib)
+endif
 
 crypto_check = executable('crypto-check',
     [
@@ -107,6 +109,7 @@ unit_utils_crypt_test = executable('unit-utils-crypt-test',
     ],
     include_directories: includes_lib)
 
+if is_linux
 unit_wipe = executable('unit-wipe',
     [
         'unit-wipe.c',
@@ -116,7 +119,9 @@ unit_wipe = executable('unit-wipe',
         '-DNO_CRYPTSETUP_PATH',
     ],
     include_directories: includes_lib)
+endif
 
+if is_linux
 generate_symbols_list = find_program('generate-symbols-list')
 test_symbols_list_h = custom_target('test-symbols-list.h',
     output: 'test-symbols-list.h',
@@ -140,6 +145,7 @@ all_symbols_test = executable('all-symbols-test',
         '-DNO_CRYPTSETUP_PATH',
     ],
     include_directories: includes_lib)
+endif
 
 fake_systemd_tpm_path = shared_library('fake_systemd_tpm_path',
     [
@@ -169,6 +175,7 @@ add_test_setup('valgrind',
     exclude_suites: [ 'not-in-valgrind' ]
 )
 
+if is_linux
 test('00modules-test',
     find_program('./00modules-test'),
     workdir: meson.current_build_dir(),
@@ -176,6 +183,8 @@ test('00modules-test',
     is_parallel: false,
     suite: 'not-in-valgrind',
     priority: 9999)
+endif
+if use_devmapper
 test('api-test',
     api_test,
     workdir: meson.current_build_dir(),
@@ -206,6 +215,8 @@ test('valg-api-test-2',
     timeout: 14400,
     is_parallel: false,
     suite: 'valgrind-only')
+endif
+if is_linux
 test('blockwise-compat-test',
     find_program('./blockwise-compat-test'),
     workdir: meson.current_build_dir(),
@@ -215,6 +226,7 @@ test('blockwise-compat-test',
     depends: [
         unit_utils_io,
     ])
+endif
 test('keyring-test',
     find_program('./keyring-test'),
     workdir: meson.current_build_dir(),
@@ -236,6 +248,7 @@ test('valg-vectors-test',
     timeout: 14400,
     is_parallel: false,
     suite: 'valgrind-only')
+if is_linux
 test('unit-wipe-test',
     find_program('./unit-wipe-test'),
     workdir: meson.current_build_dir(),
@@ -245,6 +258,7 @@ test('unit-wipe-test',
     depends: [
         unit_wipe,
     ])
+endif
 test('unit-utils-crypt-test',
     unit_utils_crypt_test,
     workdir: meson.current_build_dir(),
@@ -261,7 +275,7 @@ test('valg-unit-utils-crypt-test',
     is_parallel: false,
     suite: 'valgrind-only')
 
-if not enable_static
+if not enable_static and is_linux
     test('run-all-symbols',
         find_program('./run-all-symbols'),
         workdir: meson.current_build_dir(),
@@ -274,7 +288,7 @@ if not enable_static
         ])
 endif
 
-if get_option('cryptsetup')
+if get_option('cryptsetup') and use_devmapper
     test('compat-args-test',
         find_program('./compat-args-test'),
         workdir: meson.current_build_dir(),
@@ -457,7 +471,7 @@ if get_option('cryptsetup')
         ])
 endif
 
-if get_option('veritysetup')
+if get_option('veritysetup') and use_devmapper
     test('verity-compat-test',
         find_program('verity-compat-test'),
         workdir: meson.current_build_dir(),
@@ -468,7 +482,7 @@ if get_option('veritysetup')
         ])
 endif
 
-if get_option('integritysetup')
+if get_option('integritysetup') and use_devmapper
     test('integrity-compat-test',
         find_program('integrity-compat-test'),
         workdir: meson.current_build_dir(),
