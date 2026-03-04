@@ -85,7 +85,11 @@ endif
 link_args = []
 if enable_static == true
     if not sanitizer_enabled
-        link_args += '--static'
+        # macOS (ld64) does not support fully static linking (no static libc).
+        # Static dependencies are linked via explicit .a paths instead.
+        if cc.get_linker_id() != 'ld64'
+            link_args += '--static'
+        endif
     else
         warning('Turning off statically linked binaries as they are not compatible with sanitizer build. Will keep preferring static external dependencies.')
     endif
