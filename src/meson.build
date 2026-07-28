@@ -21,6 +21,7 @@ if get_option('cryptsetup')
         passwdqc,
         uuid,
         blkid,
+        intl,
     ]
     cryptsetup = executable('cryptsetup',
         cryptsetup_files,
@@ -42,6 +43,7 @@ if get_option('veritysetup')
     veritysetup_deps = [
         popt,
         blkid,
+        intl,
     ]
 
     veritysetup = executable('veritysetup',
@@ -67,6 +69,7 @@ if get_option('integritysetup') and use_devmapper
         popt,
         uuid,
         blkid,
+        intl,
     ]
 
     integritysetup = executable('integritysetup',

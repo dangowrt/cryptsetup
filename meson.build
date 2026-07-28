@@ -804,10 +804,18 @@ endif
 
 # ==========================================================================
 
+intl = []
 if get_option('nls')
     conf.set10('ENABLE_NLS', true)
     assert(find_program('gettext').found(),
         'You need gettext binary to build translations.')
+
+    if not cc.has_function('gettext', prefix: '#include <libintl.h>')
+        intl = cc.find_library('intl', required: true)
+        assert(cc.has_function('gettext',
+                prefix: '#include <libintl.h>', dependencies: intl),
+            'You need the intl library for gettext.')
+    endif
 endif
 
 # ==========================================================================

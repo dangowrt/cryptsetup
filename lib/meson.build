@@ -15,6 +15,7 @@ libcryptsetup_deps = [
     jsonc,
     blkid,
     dl,
+    intl,
 ]
 if use_devmapper
     libcryptsetup_deps += devmapper
